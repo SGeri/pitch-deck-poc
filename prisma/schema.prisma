@@ -1,0 +1,131 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  MEMBER
+  ADMIN
+}
+
+model User {
+  id            String   @id
+  name          String
+  email         String
+  emailVerified Boolean  @default(false)
+  image         String?
+  role          UserRole @default(MEMBER)
+
+  sessions       Session[]
+  accounts       Account[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([email])
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  ipAddress String?
+  userAgent String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([token])
+  @@index([userId])
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([identifier])
+}
+
+// Template Processing Models
+
+enum JobStatus {
+  PENDING
+  EXTRACTING
+  READY_FOR_PROMPTS
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum MarkerType {
+  TEXTBOX
+  TABLE
+}
+
+model TemplateJob {
+  id          String    @id @default(cuid())
+  fileName    String
+  filePath    String
+  status      JobStatus @default(PENDING)
+  slideNumber Int       @default(1)
+
+  markers TemplateMarker[]
+
+  outputPath String?
+  error      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TemplateMarker {
+  id             String     @id @default(cuid())
+  marker         String
+  markerNumber   Int
+  type           MarkerType
+  elementName    String
+  tableRow       Int?
+  tableCol       Int?
+
+  prompt         String?
+  generatedValue String?
+
+  jobId String
+  job   TemplateJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([jobId])
+}
