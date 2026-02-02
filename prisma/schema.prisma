@@ -76,3 +76,56 @@ model Verification {
 
   @@index([identifier])
 }
+
+// Template Processing Models
+
+enum JobStatus {
+  PENDING
+  EXTRACTING
+  READY_FOR_PROMPTS
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum MarkerType {
+  TEXTBOX
+  TABLE
+}
+
+model TemplateJob {
+  id          String    @id @default(cuid())
+  fileName    String
+  filePath    String
+  status      JobStatus @default(PENDING)
+  slideNumber Int       @default(1)
+
+  markers TemplateMarker[]
+
+  outputPath String?
+  error      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TemplateMarker {
+  id             String     @id @default(cuid())
+  marker         String
+  markerNumber   Int
+  type           MarkerType
+  elementName    String
+  tableRow       Int?
+  tableCol       Int?
+
+  prompt         String?
+  generatedValue String?
+
+  jobId String
+  job   TemplateJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([jobId])
+}

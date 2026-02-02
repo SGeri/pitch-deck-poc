@@ -1,6 +1,6 @@
 'use server';
 
-import Automizer from 'pptx-automizer';
+import Automizer, { XmlElement } from 'pptx-automizer';
 import path from 'path';
 
 interface TextInput {
@@ -61,7 +61,7 @@ export async function testPptxExtraction() {
 
         // Process regular text elements
         for (const elementId of textElements) {
-            slide.modifyElement(elementId, (element) => {
+            slide.modifyElement(elementId, (element: XmlElement) => {
                 const textNodes = element.getElementsByTagName('a:t');
                 let fullText = '';
 
@@ -91,7 +91,7 @@ export async function testPptxExtraction() {
 
         // Process table elements
         for (const tableEl of tableElements) {
-            slide.modifyElement(tableEl.name, (element) => {
+            slide.modifyElement(tableEl.name, (element: XmlElement) => {
                 // Tables have rows (a:tr) and cells (a:tc)
                 const rows = element.getElementsByTagName('a:tr');
                 console.log(`\n=== Processing Table "${tableEl.name}" ===`);
