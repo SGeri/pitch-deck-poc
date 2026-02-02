@@ -27,6 +27,7 @@ interface MarkerPromptPair {
 
 interface FormValues {
     slideNumber: number;
+    generalContext: string;
     prompts: MarkerPromptPair[];
 }
 
@@ -40,6 +41,7 @@ export default function TemplatesPage() {
     const form = useForm<FormValues>({
         defaultValues: {
             slideNumber: 1,
+            generalContext: '',
             prompts: [{ marker: '', prompt: '' }],
         },
     });
@@ -112,6 +114,7 @@ export default function TemplatesPage() {
                 formData.append('file', file);
                 formData.append('prompts', JSON.stringify(validPrompts));
                 formData.append('slideNumber', data.slideNumber.toString());
+                formData.append('generalContext', data.generalContext);
 
                 const response = await processTemplateAction(formData);
 
@@ -252,6 +255,21 @@ export default function TemplatesPage() {
                                 />
                             </Field>
 
+                            <Field>
+                                <FieldLabel htmlFor="generalContext">
+                                    General Context
+                                </FieldLabel>
+                                <Textarea
+                                    id="generalContext"
+                                    placeholder="Provide general context that applies to all markers (e.g., company info, project details, tone of voice)..."
+                                    className="min-h-[120px] resize-y"
+                                    {...form.register('generalContext')}
+                                />
+                                <p className="text-sm text-muted-foreground">
+                                    This context will be included in every AI generation request.
+                                </p>
+                            </Field>
+
                             <div className="space-y-4">
                                 <FieldLabel>Marker-Prompt Pairs</FieldLabel>
 
@@ -269,7 +287,7 @@ export default function TemplatesPage() {
                                         <div className="flex-1">
                                             <Textarea
                                                 placeholder="Enter prompt for AI to generate content..."
-                                                rows={2}
+                                                className="min-h-[100px] resize-y"
                                                 {...form.register(`prompts.${index}.prompt`)}
                                             />
                                         </div>
@@ -277,6 +295,7 @@ export default function TemplatesPage() {
                                             type="button"
                                             variant="ghost"
                                             size="icon"
+                                            className="shrink-0"
                                             onClick={() => remove(index)}
                                             disabled={fields.length === 1}
                                         >

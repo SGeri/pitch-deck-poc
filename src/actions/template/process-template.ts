@@ -35,6 +35,7 @@ export async function processTemplateAction(
         const file = formData.get('file') as File | null;
         const promptsJson = formData.get('prompts') as string | null;
         const slideNumber = parseInt(formData.get('slideNumber') as string) || 1;
+        const generalContext = (formData.get('generalContext') as string) || '';
 
         if (!file) {
             return { success: false, error: 'No file provided' };
@@ -71,7 +72,9 @@ export async function processTemplateAction(
         // Build slide context for AI
         const slideContext = `Slide ${slideNumber} of a PowerPoint presentation. 
 The content should be professional and suitable for a presentation.
-Markers in the template: ${extraction.inputs.map((i) => i.marker).join(', ')}`;
+Markers in the template: ${extraction.inputs.map((i) => i.marker).join(', ')}
+
+${generalContext ? `General Context:\n${generalContext}` : ''}`;
 
         // Process all prompts in parallel with AI
         const aiResults = await Promise.all(
