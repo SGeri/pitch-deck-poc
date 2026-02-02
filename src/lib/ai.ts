@@ -1,11 +1,11 @@
 import { openai } from '@ai-sdk/openai';
-import type { ModelMessage } from 'ai';
+import type { CoreMessage } from 'ai';
 import { generateText } from 'ai';
 
-export const aiModel = openai('gpt-5-mini');
+export const aiModel = openai('gpt-4o-mini');
 
 export interface GenerateResponseOptions {
-    messages: ModelMessage[];
+    messages: CoreMessage[];
     systemPrompt?: string;
 }
 

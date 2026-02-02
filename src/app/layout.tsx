@@ -1,36 +1,23 @@
-import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
-
-import './globals.css';
-import { Providers } from './providers';
-
-const geistSans = Geist({
-    variable: '--font-geist-sans',
-    subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-    variable: '--font-geist-mono',
-    subsets: ['latin'],
-});
+import type { Metadata } from "next";
+import "./globals.css";
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-    title: 'Web App Template',
-    description: 'Web App Template - Customer Support Portal',
+  title: "MOL Presentation Generator | AI-Powered Slides",
+  description: "Generate professional presentations using AI-powered templates. Create Annual Reports, ESG Reports, and more with MOL Group's intelligent presentation builder.",
+  keywords: ["MOL", "presentation", "PowerPoint", "AI", "generator", "slides"],
 };
 
 export default function RootLayout({
-    children,
+  children,
 }: Readonly<{
-    children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-    return (
-        <html lang="en">
-            <body
-                className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-            >
-                <Providers>{children}</Providers>
-            </body>
-        </html>
-    );
+  return (
+    <html lang="en">
+      <body className="antialiased">
+        <Providers>{children}</Providers>
+      </body>
+    </html>
+  );
 }
