@@ -1,7 +1,26 @@
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 
-const TMP_BASE_DIR = path.join(process.cwd(), 'tmp', 'templates');
+/**
+ * Get the base tmp directory based on the environment.
+ * - On Vercel/serverless: uses /tmp (the only writable directory)
+ * - Locally: uses <cwd>/tmp/templates for easier debugging
+ */
+function getTmpBasePath(): string {
+    // Vercel sets the VERCEL env var, AWS Lambda sets AWS_LAMBDA_FUNCTION_NAME
+    const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+
+    if (isServerless) {
+        // Use os.tmpdir() which returns /tmp on Linux (Vercel/Lambda)
+        return path.join(os.tmpdir(), 'templates');
+    }
+
+    // Local development - use cwd for easier access/debugging
+    return path.join(process.cwd(), 'tmp', 'templates');
+}
+
+const TMP_BASE_DIR = getTmpBasePath();
 
 /**
  * Ensures the tmp directory exists for a given job
