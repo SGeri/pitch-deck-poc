@@ -312,7 +312,7 @@ STYLE AND TONE
 - Avoid hype or marketing language; be neutral, analytical, and precise.
 - Use present or simple past tense as appropriate (e.g. "EBITDA increased...", "TRIR rose...", "Workovers were completed...").
 - Respect ALL CAPS requirements where specified.
-- Use clear bullet points starting with "-" for all bullet lists.
+- Use clear bullet points for all bullet lists. Do NOT include any prefix like "-" or "•" — the template engine adds those automatically.
 
 COHERENCE AND DATA DEPENDENCY
 - You will receive structured input for a given quarter (Q2, Q3, etc.) containing:
