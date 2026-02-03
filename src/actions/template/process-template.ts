@@ -36,6 +36,7 @@ export async function processTemplateAction(
         const promptsJson = formData.get('prompts') as string | null;
         const slideNumber = parseInt(formData.get('slideNumber') as string) || 1;
         const generalContext = (formData.get('generalContext') as string) || '';
+        const contentPrompt = (formData.get('contentPrompt') as string) || '';
 
         if (!file) {
             return { success: false, error: 'No file provided' };
@@ -69,12 +70,19 @@ export async function processTemplateAction(
         // Extract markers from the template
         const extraction = await engine.extractTemplateInputs(slideNumber);
 
-        // Build slide context for AI
+        // Build slide context for AI - combine general context and content prompt
+        const combinedContext = [
+            generalContext,
+            contentPrompt ? `\n----\n\nTHE ACTUAL CONTENT TO FILL THE TEXTBOXES FROM:\n\n${contentPrompt}` : '',
+        ]
+            .filter(Boolean)
+            .join('\n');
+
         const slideContext = `Slide ${slideNumber} of a PowerPoint presentation. 
 The content should be professional and suitable for a presentation.
 Markers in the template: ${extraction.inputs.map((i) => i.marker).join(', ')}
 
-${generalContext ? `General Context:\n${generalContext}` : ''}`;
+${combinedContext ? `Context:\n${combinedContext}` : ''}`;
 
         // Process all prompts in parallel with AI
         const aiResults = await Promise.all(
@@ -94,8 +102,6 @@ ${generalContext ? `General Context:\n${generalContext}` : ''}`;
 
         // Check for AI errors
         const failedResults = aiResults.filter((r) => r.error);
-
-        console.log('failedResults', failedResults);
 
         if (failedResults.length > 0) {
             return {

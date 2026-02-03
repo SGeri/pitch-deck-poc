@@ -36,6 +36,7 @@ interface MarkerPromptPair {
 interface FormValues {
     slideNumber: number;
     generalContext: string;
+    contentPrompt: string;
     prompts: MarkerPromptPair[];
 }
 
@@ -78,6 +79,7 @@ KOHERENCIA
 - A "Nyitott kérdések és kockázatok" csak valóban lényeges, még nem lezárt témákat tartalmazzon; ha nincs ilyen, ezt röviden jelezd.
 - A mérföldkő táblázat készültségi százalékai legyenek összhangban a szövegdobozokkal és a projekt általános állapotával.
 - Mindig ügyelj arra, hogy a teljes dia tartalma logikus, egymással összhangban álló képet adjon a projektről.`,
+    contentPrompt: '',
     prompts: [
         {
             marker: '[1]',
@@ -90,7 +92,7 @@ KOHERENCIA
   • mi a fő fókusz jelenleg,
   • milyen fontos mérföldkő(ke)t ért el a csapat.
 – Maradj tárgyilagos, üzleti tanácsadói hangnemben.
-– Csak magyarul írj, a bulletokat "-" jellel kezdve.
+
 
 Használd fel a felhasználó által megadott aktuális státuszinformációkat, és ügyelj arra, hogy a szöveg összhangban legyen a mérföldkő táblázat készültségével.`,
         },
@@ -102,7 +104,7 @@ Használd fel a felhasználó által megadott aktuális státuszinformációkat,
 – A HÁROM bullet ÖSSZESEN legfeljebb kb. 30 szóból álljon.
 – Csak ténylegesen megtörtént, lezárt vagy érdemben előrehaladt munkákat írj ide.
 – Lehetőleg csengjen össze az előző heti "Fő feladatok a hétre" mező tartalmával, ha az információ rendelkezésre áll.
-– Csak magyarul írj, a bulletokat "-" jellel kezdve.
+
 – Fogalmazz tömören, múlt időben (pl. "Befejeztük…", "Finomhangoltuk…").
 
 A fókusz legyen a legfontosabb 1–3 eredményen, ne részletezd túl.`,
@@ -114,7 +116,7 @@ A fókusz legyen a legfontosabb 1–3 eredményen, ne részletezd túl.`,
 – Írj legfeljebb 3 bulletpontot.
 – A HÁROM bullet ÖSSZESEN legfeljebb kb. 30 szóból álljon.
 – Csak a következő hét konkrét, legfontosabb prioritásaira fókuszálj (pl. tesztek, finomhangolás, döntések, integrációk).
-– Csak magyarul írj, a bulletokat "-" jellel kezdve.
+
 – Jelen időt vagy jövő időt használj (pl. "Futtatjuk…", "Előkészítjük…", "Véglegesítjük…").
 – A tartalom alapja a felhasználó által megadott aktuális fókusz- és feladatlista.
 
@@ -129,7 +131,7 @@ Kerüld a túl általános megfogalmazást; legyen egyértelmű, mit csinál a c
 – Csak valóban lényeges, még nem lezárt kérdéseket vagy kockázatokat emelj ki.
 – Ha nincsenek érdemi nyitott kérdések/kockázatok, írj EGY rövid bulletet, pl.:
   "- Nincs kiemelt nyitott kérdés vagy kockázat."
-– Csak magyarul írj, a bulletokat "-" jellel kezdve.
+
 – Fogalmazz nagyon tömören, kulcsszószerűen, de érthetően.
 
 Az itt szereplő elemek legyenek konzisztenssek az általános státusszal és a heti feladatokkal.`,
@@ -270,9 +272,7 @@ DÁTUM: 2026.01.30.`,
     ],
 };
 
-const MOL_QUARTERLY_SLIDE_1_PRESET: FormValues = {
-    slideNumber: 1,
-    generalContext: `CONTEXT – MOL GROUP QUARTERLY RESULTS PRESENTATION (Q-REPORT)
+const MOL_GENERAL_CONTEXT = `CONTEXT – MOL GROUP QUARTERLY RESULTS PRESENTATION (Q-REPORT)
 
 You are generating text for a fixed PowerPoint template that presents MOL Group's quarterly financial and operational results across multiple countries.
 
@@ -330,13 +330,9 @@ FORMAT LIMITS (VERY IMPORTANT)
 - When a prompt specifies the exact number of bullets, generate exactly that number.
 - When ALL CAPS is required, every letter in that textbox must be uppercase.
 
-Your job is to fill each textbox independently but consistently, based on the quarter's data and the detailed instructions provided per textbox in separate prompts.
+Your job is to fill each textbox independently but consistently, based on the quarter's data and the detailed instructions provided per textbox in separate prompts.`;
 
-----
-
-THE ACTUAL CONTENT TO FILL THE TEXTBOXES FROM:
-
-MOL GROUP – Q3 2025 RESULTS
+const MOL_CONTENT_PROMPT = `MOL GROUP – Q3 2025 RESULTS
 CONTEXT UPDATE FOR 4-SLIDE AI TEMPLATE
 1. Cover slide – basic info
 Quarter: Q3 2025
@@ -402,8 +398,12 @@ For Gobustan, an onshore operated exploration asset, the EDPSA signing is expect
 4.4 Egypt
 Operational update (Egypt)
 Workover activities were performed on several assets: four wells in North Bahariya, one in Ras Qattara and one in West Abu Gharadig.
-Two new wells were drilled in North Bahariya, and drilling of an additional well started in Ras Qattara during the quarter.
-`,
+Two new wells were drilled in North Bahariya, and drilling of an additional well started in Ras Qattara during the quarter.`;
+
+const MOL_QUARTERLY_SLIDE_1_PRESET: FormValues = {
+    slideNumber: 1,
+    generalContext: MOL_GENERAL_CONTEXT,
+    contentPrompt: MOL_CONTENT_PROMPT,
     prompts: [
         {
             marker: '[1]',
@@ -441,138 +441,8 @@ OUTPUT:
 
 const MOL_QUARTERLY_SLIDE_2_PRESET: FormValues = {
     slideNumber: 2,
-    generalContext: `CONTEXT – MOL GROUP QUARTERLY RESULTS PRESENTATION (Q-REPORT)
-
-You are generating text for a fixed PowerPoint template that presents MOL Group's quarterly financial and operational results across multiple countries.
-
-The presentation is produced once per quarter and always evaluates the year-to-date performance:
-- Q2 report covers H1 (Q1+Q2),
-- Q3 report covers Q1–Q3,
-- Q4 report covers the full year (if used).
-
-All content must be in ENGLISH.
-
-The slides in scope:
-
-1) COVER SLIDE (Slide 1)
-   - Textbox 1: Main title – e.g. "SECOND QUARTER 2025 RESULTS".
-   - Textbox 2: Report date – e.g. "31 JULY 2025".
-   Both fields are written in ALL CAPS.
-
-2) SLIDE 2 – EXECUTIVE & FINANCIAL OVERVIEW
-   - Textbox 1: Action title about CLEAN CCS EBITDA movement in the quarter.
-   - Textbox 2: Subtitle explaining the main cash flow / business driver behind the results.
-   - Textbox 3: "FINANCIALS" bullet list explaining the financial performance (segment-level EBITDA, revenue drivers, etc.).
-   - Textbox 4: "OPERATIONAL AND OTHER DEVELOPMENTS" bullet list summarising key operational and other business developments.
-
-3) SLIDE 3 – TRIR (SAFETY) KPI
-   - Textbox 1: Action title summarising TRIR (Total Recordable Injury Rate) level and movement.
-   - Textbox 2: Comment bullets explaining TRIR performance and main drivers.
-   (The bar chart on the slide is NOT your responsibility; you only generate text based on the TRIR values provided as input.)
-
-4) SLIDE 4 – UPSTREAM OPERATIONAL UPDATE 1 (APPENDIX-TYPE SLIDE)
-   - The slide is structured by country: HUNGARY, CROATIA, AZERBAIJAN, EGYPT.
-   - Under each country there are fixed category headers (Exploration, Field development, Production optimisation, Geothermal, etc.).
-   - For each country/category, you generate short bullet points describing key operational updates in that area (drilling, field development, production optimisation, geothermal activities, etc.).
-
-STYLE AND TONE
-- Language: ENGLISH.
-- Tone: executive, concise, factual, similar to an investor or quarterly management presentation.
-- Avoid hype or marketing language; be neutral, analytical, and precise.
-- Use present or simple past tense as appropriate (e.g. "EBITDA increased...", "TRIR rose...", "Workovers were completed...").
-- Respect ALL CAPS requirements where specified.
-- Use clear bullet points starting with "-" for all bullet lists.
-
-COHERENCE AND DATA DEPENDENCY
-- You will receive structured input for a given quarter (Q2, Q3, etc.) containing:
-  - Clean CCS EBITDA figures and main drivers,
-  - Segmental (Upstream, Downstream, Consumer Services, Circular Economy Services) financial performance,
-  - TRIR values for current period vs. prior period,
-  - Country-level upstream operational updates.
-- Your generated text for each textbox must be:
-  - Consistent with these numeric and qualitative inputs,
-  - Internally coherent across the slide (titles must match bullet content),
-  - Reflective of year-to-date performance (H1, Q1–Q3, etc.), not just a single quarter, when that is how the KPI is reported.
-
-FORMAT LIMITS (VERY IMPORTANT)
-- When a prompt specifies maximum words per bullet or per textbox, you MUST respect those limits.
-- When a prompt specifies the exact number of bullets, generate exactly that number.
-- When ALL CAPS is required, every letter in that textbox must be uppercase.
-
-Your job is to fill each textbox independently but consistently, based on the quarter's data and the detailed instructions provided per textbox in separate prompts.
-
-----
-
-THE ACTUAL CONTENT TO FILL THE TEXTBOXES FROM:
-
-MOL GROUP – Q3 2025 RESULTS
-CONTEXT UPDATE FOR 4-SLIDE AI TEMPLATE
-1. Cover slide – basic info
-Quarter: Q3 2025
-Year-to-date period covered: Q1–Q3 2025
-Official report date: 7 November 2025
-
-
-
-2. Executive & financial overview (Clean CCS EBITDA + key segments)
-Clean CCS EBITDA headline
-Clean CCS EBITDA in Q3 2025 increased by about 15% year-on-year to USD 974 mn.
-Subtitle / key driver
-Operating cash flow before working capital for the first nine months is above USD 1.8 bn.
-Financials – segment highlights
-Profit before tax in Q3 2025 is around USD 503 mn, roughly flat versus the same quarter last year.
-Clean CCS EBITDA for the quarter rises about 15% YoY to roughly USD 974 mn, driven mostly by refining margins; Q1–Q3 operating cash flow before working capital exceeds USD 1.8 bn.
-Upstream EBITDA is broadly stable, with around 3% quarter-on-quarter growth in a largely unchanged external price environment.
-Downstream Clean CCS EBITDA grows about 51% YoY to roughly USD 452 mn, supported mainly by significantly wider refining margins (diesel and other products).
-Consumer Services EBITDA increases about 28% YoY to around USD 317 mn, helped by a strong driving season and better pricing, especially in Romania and Croatia.
-Circular Economy Services EBITDA is negative at about USD -64 mn in Q3, reflecting seasonality, high redemption activity in the deposit-return system and weaker secondary raw material sales.
-Operational and other developments – group level
-In Kurdistan, developments are positive: the export pipeline to Turkey has reopened and the KM250 gas expansion facility reached completion, enabling higher gas processing capacity at Khor Mor.
-MOL plans to change its legal structure to a holding structure; an extraordinary general meeting is scheduled for 27 November 2025 to decide on the changes.
-A fire incident occurred at the Danube Refinery on 20 October 2025; one of the three atmospheric vacuum distillation units (AV3) was heavily damaged, while the rest of the refinery remained intact.
-Units unaffected by the fire have been restarted; the refinery is expected to run at roughly 50–55% of capacity until AV3 is repaired, implying around 250–300 kt per month of lost crude processing in the interim.
-
-3. TRIR slide – safety KPI
-TRIR (Total Recordable Injury Rate) for Q1–Q3 2025 stands at 1.44, above the public full-year guidance level of 1.3.
-The deterioration versus the previous year is partly linked to a single significant incident in Pakistan.
-There were no injuries associated with the Danube Refinery fire in October.
-
-4. Upstream Operational Update 1 – country inputs
-All points below refer to Q3 2025 operational updates.
-4.1 Hungary
-Exploration (Hungary)
-The Galga-4 well delivered a successful oil discovery in partnership with O&GD, with gross production of about 1.0 mboepd, roughly half attributable to MOL.
-The Nagykörű-É-1 well was spudded on 8 September; due to poor reservoir quality it was plugged and abandoned after evaluation.
-Field development (Hungary)
-Construction of the Vecsés gathering station has started, progressing field development in the area.
-Production optimisation (Hungary)
-Around 14 well workovers were completed during the quarter to optimise production.
-Geothermal / other (Hungary)
-The Murakeresztúr-Őrtilos geothermal licence has been relinquished; at the same time, MOL submitted an application for a new geothermal exploration licence in the Szeged area.
-
-4.2 Croatia
-Exploration (Croatia)
-An offshore drilling campaign is in progress: at Ika A, drilling activities started on 22 August 2025.
-Field development and production (Croatia)
-The Jamarice-183 well has been tied-in and started production in July.
-A re-entry at Gola-4 commenced on 13 July 2025; attempts to remove production equipment were unsuccessful and the well has been plugged and abandoned.
-At Zalata-Dravica, permitting activities are ongoing to progress the project.
-Production optimisation (Croatia)
-About 10 workovers were executed on onshore fields to support production optimisation.
-Geothermal (Croatia)
-At Leščan, drilling operations finished and the team is evaluating whether to continue the geothermal project.
-
-4.3 Azerbaijan
-Operational update (Azerbaijan)
-ACG oil production is impacted by the natural decline of the field, unplanned trips at the ACG plant and the oil price-linked effect on entitlement volumes.
-Drilling activities on the ACG field continue.
-For Gobustan, an onshore operated exploration asset, the EDPSA signing is expected in Q4 2025.
-
-4.4 Egypt
-Operational update (Egypt)
-Workover activities were performed on several assets: four wells in North Bahariya, one in Ras Qattara and one in West Abu Gharadig.
-Two new wells were drilled in North Bahariya, and drilling of an additional well started in Ras Qattara during the quarter.
-`,
+    generalContext: MOL_GENERAL_CONTEXT,
+    contentPrompt: MOL_CONTENT_PROMPT,
     prompts: [
         {
             marker: '[1]',
@@ -623,7 +493,7 @@ REQUIREMENTS:
 - Do NOT use ALL CAPS; use normal sentence case (capitalise first letter, proper nouns).
 
 FORMAT:
-- Use "-" at the beginning of each bullet.
+
 - One bullet per line.
 
 OUTPUT:
@@ -641,7 +511,7 @@ REQUIREMENTS:
 - Do NOT use ALL CAPS; use normal sentence case.
 
 FORMAT:
-- Use "-" at the beginning of each bullet.
+
 - One bullet per line.
 
 OUTPUT:
@@ -652,138 +522,8 @@ OUTPUT:
 
 const MOL_QUARTERLY_SLIDE_3_PRESET: FormValues = {
     slideNumber: 3,
-    generalContext: `CONTEXT – MOL GROUP QUARTERLY RESULTS PRESENTATION (Q-REPORT)
-
-You are generating text for a fixed PowerPoint template that presents MOL Group's quarterly financial and operational results across multiple countries.
-
-The presentation is produced once per quarter and always evaluates the year-to-date performance:
-- Q2 report covers H1 (Q1+Q2),
-- Q3 report covers Q1–Q3,
-- Q4 report covers the full year (if used).
-
-All content must be in ENGLISH.
-
-The slides in scope:
-
-1) COVER SLIDE (Slide 1)
-   - Textbox 1: Main title – e.g. "SECOND QUARTER 2025 RESULTS".
-   - Textbox 2: Report date – e.g. "31 JULY 2025".
-   Both fields are written in ALL CAPS.
-
-2) SLIDE 2 – EXECUTIVE & FINANCIAL OVERVIEW
-   - Textbox 1: Action title about CLEAN CCS EBITDA movement in the quarter.
-   - Textbox 2: Subtitle explaining the main cash flow / business driver behind the results.
-   - Textbox 3: "FINANCIALS" bullet list explaining the financial performance (segment-level EBITDA, revenue drivers, etc.).
-   - Textbox 4: "OPERATIONAL AND OTHER DEVELOPMENTS" bullet list summarising key operational and other business developments.
-
-3) SLIDE 3 – TRIR (SAFETY) KPI
-   - Textbox 1: Action title summarising TRIR (Total Recordable Injury Rate) level and movement.
-   - Textbox 2: Comment bullets explaining TRIR performance and main drivers.
-   (The bar chart on the slide is NOT your responsibility; you only generate text based on the TRIR values provided as input.)
-
-4) SLIDE 4 – UPSTREAM OPERATIONAL UPDATE 1 (APPENDIX-TYPE SLIDE)
-   - The slide is structured by country: HUNGARY, CROATIA, AZERBAIJAN, EGYPT.
-   - Under each country there are fixed category headers (Exploration, Field development, Production optimisation, Geothermal, etc.).
-   - For each country/category, you generate short bullet points describing key operational updates in that area (drilling, field development, production optimisation, geothermal activities, etc.).
-
-STYLE AND TONE
-- Language: ENGLISH.
-- Tone: executive, concise, factual, similar to an investor or quarterly management presentation.
-- Avoid hype or marketing language; be neutral, analytical, and precise.
-- Use present or simple past tense as appropriate (e.g. "EBITDA increased...", "TRIR rose...", "Workovers were completed...").
-- Respect ALL CAPS requirements where specified.
-- Use clear bullet points starting with "-" for all bullet lists.
-
-COHERENCE AND DATA DEPENDENCY
-- You will receive structured input for a given quarter (Q2, Q3, etc.) containing:
-  - Clean CCS EBITDA figures and main drivers,
-  - Segmental (Upstream, Downstream, Consumer Services, Circular Economy Services) financial performance,
-  - TRIR values for current period vs. prior period,
-  - Country-level upstream operational updates.
-- Your generated text for each textbox must be:
-  - Consistent with these numeric and qualitative inputs,
-  - Internally coherent across the slide (titles must match bullet content),
-  - Reflective of year-to-date performance (H1, Q1–Q3, etc.), not just a single quarter, when that is how the KPI is reported.
-
-FORMAT LIMITS (VERY IMPORTANT)
-- When a prompt specifies maximum words per bullet or per textbox, you MUST respect those limits.
-- When a prompt specifies the exact number of bullets, generate exactly that number.
-- When ALL CAPS is required, every letter in that textbox must be uppercase.
-
-Your job is to fill each textbox independently but consistently, based on the quarter's data and the detailed instructions provided per textbox in separate prompts.
-
-----
-
-THE ACTUAL CONTENT TO FILL THE TEXTBOXES FROM:
-
-MOL GROUP – Q3 2025 RESULTS
-CONTEXT UPDATE FOR 4-SLIDE AI TEMPLATE
-1. Cover slide – basic info
-Quarter: Q3 2025
-Year-to-date period covered: Q1–Q3 2025
-Official report date: 7 November 2025
-
-
-
-2. Executive & financial overview (Clean CCS EBITDA + key segments)
-Clean CCS EBITDA headline
-Clean CCS EBITDA in Q3 2025 increased by about 15% year-on-year to USD 974 mn.
-Subtitle / key driver
-Operating cash flow before working capital for the first nine months is above USD 1.8 bn.
-Financials – segment highlights
-Profit before tax in Q3 2025 is around USD 503 mn, roughly flat versus the same quarter last year.
-Clean CCS EBITDA for the quarter rises about 15% YoY to roughly USD 974 mn, driven mostly by refining margins; Q1–Q3 operating cash flow before working capital exceeds USD 1.8 bn.
-Upstream EBITDA is broadly stable, with around 3% quarter-on-quarter growth in a largely unchanged external price environment.
-Downstream Clean CCS EBITDA grows about 51% YoY to roughly USD 452 mn, supported mainly by significantly wider refining margins (diesel and other products).
-Consumer Services EBITDA increases about 28% YoY to around USD 317 mn, helped by a strong driving season and better pricing, especially in Romania and Croatia.
-Circular Economy Services EBITDA is negative at about USD -64 mn in Q3, reflecting seasonality, high redemption activity in the deposit-return system and weaker secondary raw material sales.
-Operational and other developments – group level
-In Kurdistan, developments are positive: the export pipeline to Turkey has reopened and the KM250 gas expansion facility reached completion, enabling higher gas processing capacity at Khor Mor.
-MOL plans to change its legal structure to a holding structure; an extraordinary general meeting is scheduled for 27 November 2025 to decide on the changes.
-A fire incident occurred at the Danube Refinery on 20 October 2025; one of the three atmospheric vacuum distillation units (AV3) was heavily damaged, while the rest of the refinery remained intact.
-Units unaffected by the fire have been restarted; the refinery is expected to run at roughly 50–55% of capacity until AV3 is repaired, implying around 250–300 kt per month of lost crude processing in the interim.
-
-3. TRIR slide – safety KPI
-TRIR (Total Recordable Injury Rate) for Q1–Q3 2025 stands at 1.44, above the public full-year guidance level of 1.3.
-The deterioration versus the previous year is partly linked to a single significant incident in Pakistan.
-There were no injuries associated with the Danube Refinery fire in October.
-
-4. Upstream Operational Update 1 – country inputs
-All points below refer to Q3 2025 operational updates.
-4.1 Hungary
-Exploration (Hungary)
-The Galga-4 well delivered a successful oil discovery in partnership with O&GD, with gross production of about 1.0 mboepd, roughly half attributable to MOL.
-The Nagykörű-É-1 well was spudded on 8 September; due to poor reservoir quality it was plugged and abandoned after evaluation.
-Field development (Hungary)
-Construction of the Vecsés gathering station has started, progressing field development in the area.
-Production optimisation (Hungary)
-Around 14 well workovers were completed during the quarter to optimise production.
-Geothermal / other (Hungary)
-The Murakeresztúr-Őrtilos geothermal licence has been relinquished; at the same time, MOL submitted an application for a new geothermal exploration licence in the Szeged area.
-
-4.2 Croatia
-Exploration (Croatia)
-An offshore drilling campaign is in progress: at Ika A, drilling activities started on 22 August 2025.
-Field development and production (Croatia)
-The Jamarice-183 well has been tied-in and started production in July.
-A re-entry at Gola-4 commenced on 13 July 2025; attempts to remove production equipment were unsuccessful and the well has been plugged and abandoned.
-At Zalata-Dravica, permitting activities are ongoing to progress the project.
-Production optimisation (Croatia)
-About 10 workovers were executed on onshore fields to support production optimisation.
-Geothermal (Croatia)
-At Leščan, drilling operations finished and the team is evaluating whether to continue the geothermal project.
-
-4.3 Azerbaijan
-Operational update (Azerbaijan)
-ACG oil production is impacted by the natural decline of the field, unplanned trips at the ACG plant and the oil price-linked effect on entitlement volumes.
-Drilling activities on the ACG field continue.
-For Gobustan, an onshore operated exploration asset, the EDPSA signing is expected in Q4 2025.
-
-4.4 Egypt
-Operational update (Egypt)
-Workover activities were performed on several assets: four wells in North Bahariya, one in Ras Qattara and one in West Abu Gharadig.
-Two new wells were drilled in North Bahariya, and drilling of an additional well started in Ras Qattara during the quarter.
-`,
+    generalContext: MOL_GENERAL_CONTEXT,
+    contentPrompt: MOL_CONTENT_PROMPT,
     prompts: [
         {
             marker: '[1]',
@@ -816,7 +556,6 @@ REQUIREMENTS:
 - Style: factual, safety-focused, non-alarmist but transparent.
 
 FORMAT:
-- Use "-" at the beginning of each bullet.
 - One bullet per line.
 - Normal sentence case (not all caps).
 
@@ -828,138 +567,8 @@ OUTPUT:
 
 const MOL_QUARTERLY_SLIDE_4_PRESET: FormValues = {
     slideNumber: 4,
-    generalContext: `CONTEXT – MOL GROUP QUARTERLY RESULTS PRESENTATION (Q-REPORT)
-
-You are generating text for a fixed PowerPoint template that presents MOL Group's quarterly financial and operational results across multiple countries.
-
-The presentation is produced once per quarter and always evaluates the year-to-date performance:
-- Q2 report covers H1 (Q1+Q2),
-- Q3 report covers Q1–Q3,
-- Q4 report covers the full year (if used).
-
-All content must be in ENGLISH.
-
-The slides in scope:
-
-1) COVER SLIDE (Slide 1)
-   - Textbox 1: Main title – e.g. "SECOND QUARTER 2025 RESULTS".
-   - Textbox 2: Report date – e.g. "31 JULY 2025".
-   Both fields are written in ALL CAPS.
-
-2) SLIDE 2 – EXECUTIVE & FINANCIAL OVERVIEW
-   - Textbox 1: Action title about CLEAN CCS EBITDA movement in the quarter.
-   - Textbox 2: Subtitle explaining the main cash flow / business driver behind the results.
-   - Textbox 3: "FINANCIALS" bullet list explaining the financial performance (segment-level EBITDA, revenue drivers, etc.).
-   - Textbox 4: "OPERATIONAL AND OTHER DEVELOPMENTS" bullet list summarising key operational and other business developments.
-
-3) SLIDE 3 – TRIR (SAFETY) KPI
-   - Textbox 1: Action title summarising TRIR (Total Recordable Injury Rate) level and movement.
-   - Textbox 2: Comment bullets explaining TRIR performance and main drivers.
-   (The bar chart on the slide is NOT your responsibility; you only generate text based on the TRIR values provided as input.)
-
-4) SLIDE 4 – UPSTREAM OPERATIONAL UPDATE 1 (APPENDIX-TYPE SLIDE)
-   - The slide is structured by country: HUNGARY, CROATIA, AZERBAIJAN, EGYPT.
-   - Under each country there are fixed category headers (Exploration, Field development, Production optimisation, Geothermal, etc.).
-   - For each country/category, you generate short bullet points describing key operational updates in that area (drilling, field development, production optimisation, geothermal activities, etc.).
-
-STYLE AND TONE
-- Language: ENGLISH.
-- Tone: executive, concise, factual, similar to an investor or quarterly management presentation.
-- Avoid hype or marketing language; be neutral, analytical, and precise.
-- Use present or simple past tense as appropriate (e.g. "EBITDA increased...", "TRIR rose...", "Workovers were completed...").
-- Respect ALL CAPS requirements where specified.
-- Use clear bullet points starting with "-" for all bullet lists.
-
-COHERENCE AND DATA DEPENDENCY
-- You will receive structured input for a given quarter (Q2, Q3, etc.) containing:
-  - Clean CCS EBITDA figures and main drivers,
-  - Segmental (Upstream, Downstream, Consumer Services, Circular Economy Services) financial performance,
-  - TRIR values for current period vs. prior period,
-  - Country-level upstream operational updates.
-- Your generated text for each textbox must be:
-  - Consistent with these numeric and qualitative inputs,
-  - Internally coherent across the slide (titles must match bullet content),
-  - Reflective of year-to-date performance (H1, Q1–Q3, etc.), not just a single quarter, when that is how the KPI is reported.
-
-FORMAT LIMITS (VERY IMPORTANT)
-- When a prompt specifies maximum words per bullet or per textbox, you MUST respect those limits.
-- When a prompt specifies the exact number of bullets, generate exactly that number.
-- When ALL CAPS is required, every letter in that textbox must be uppercase.
-
-Your job is to fill each textbox independently but consistently, based on the quarter's data and the detailed instructions provided per textbox in separate prompts.
-
-----
-
-THE ACTUAL CONTENT TO FILL THE TEXTBOXES FROM:
-
-MOL GROUP – Q3 2025 RESULTS
-CONTEXT UPDATE FOR 4-SLIDE AI TEMPLATE
-1. Cover slide – basic info
-Quarter: Q3 2025
-Year-to-date period covered: Q1–Q3 2025
-Official report date: 7 November 2025
-
-
-
-2. Executive & financial overview (Clean CCS EBITDA + key segments)
-Clean CCS EBITDA headline
-Clean CCS EBITDA in Q3 2025 increased by about 15% year-on-year to USD 974 mn.
-Subtitle / key driver
-Operating cash flow before working capital for the first nine months is above USD 1.8 bn.
-Financials – segment highlights
-Profit before tax in Q3 2025 is around USD 503 mn, roughly flat versus the same quarter last year.
-Clean CCS EBITDA for the quarter rises about 15% YoY to roughly USD 974 mn, driven mostly by refining margins; Q1–Q3 operating cash flow before working capital exceeds USD 1.8 bn.
-Upstream EBITDA is broadly stable, with around 3% quarter-on-quarter growth in a largely unchanged external price environment.
-Downstream Clean CCS EBITDA grows about 51% YoY to roughly USD 452 mn, supported mainly by significantly wider refining margins (diesel and other products).
-Consumer Services EBITDA increases about 28% YoY to around USD 317 mn, helped by a strong driving season and better pricing, especially in Romania and Croatia.
-Circular Economy Services EBITDA is negative at about USD -64 mn in Q3, reflecting seasonality, high redemption activity in the deposit-return system and weaker secondary raw material sales.
-Operational and other developments – group level
-In Kurdistan, developments are positive: the export pipeline to Turkey has reopened and the KM250 gas expansion facility reached completion, enabling higher gas processing capacity at Khor Mor.
-MOL plans to change its legal structure to a holding structure; an extraordinary general meeting is scheduled for 27 November 2025 to decide on the changes.
-A fire incident occurred at the Danube Refinery on 20 October 2025; one of the three atmospheric vacuum distillation units (AV3) was heavily damaged, while the rest of the refinery remained intact.
-Units unaffected by the fire have been restarted; the refinery is expected to run at roughly 50–55% of capacity until AV3 is repaired, implying around 250–300 kt per month of lost crude processing in the interim.
-
-3. TRIR slide – safety KPI
-TRIR (Total Recordable Injury Rate) for Q1–Q3 2025 stands at 1.44, above the public full-year guidance level of 1.3.
-The deterioration versus the previous year is partly linked to a single significant incident in Pakistan.
-There were no injuries associated with the Danube Refinery fire in October.
-
-4. Upstream Operational Update 1 – country inputs
-All points below refer to Q3 2025 operational updates.
-4.1 Hungary
-Exploration (Hungary)
-The Galga-4 well delivered a successful oil discovery in partnership with O&GD, with gross production of about 1.0 mboepd, roughly half attributable to MOL.
-The Nagykörű-É-1 well was spudded on 8 September; due to poor reservoir quality it was plugged and abandoned after evaluation.
-Field development (Hungary)
-Construction of the Vecsés gathering station has started, progressing field development in the area.
-Production optimisation (Hungary)
-Around 14 well workovers were completed during the quarter to optimise production.
-Geothermal / other (Hungary)
-The Murakeresztúr-Őrtilos geothermal licence has been relinquished; at the same time, MOL submitted an application for a new geothermal exploration licence in the Szeged area.
-
-4.2 Croatia
-Exploration (Croatia)
-An offshore drilling campaign is in progress: at Ika A, drilling activities started on 22 August 2025.
-Field development and production (Croatia)
-The Jamarice-183 well has been tied-in and started production in July.
-A re-entry at Gola-4 commenced on 13 July 2025; attempts to remove production equipment were unsuccessful and the well has been plugged and abandoned.
-At Zalata-Dravica, permitting activities are ongoing to progress the project.
-Production optimisation (Croatia)
-About 10 workovers were executed on onshore fields to support production optimisation.
-Geothermal (Croatia)
-At Leščan, drilling operations finished and the team is evaluating whether to continue the geothermal project.
-
-4.3 Azerbaijan
-Operational update (Azerbaijan)
-ACG oil production is impacted by the natural decline of the field, unplanned trips at the ACG plant and the oil price-linked effect on entitlement volumes.
-Drilling activities on the ACG field continue.
-For Gobustan, an onshore operated exploration asset, the EDPSA signing is expected in Q4 2025.
-
-4.4 Egypt
-Operational update (Egypt)
-Workover activities were performed on several assets: four wells in North Bahariya, one in Ras Qattara and one in West Abu Gharadig.
-Two new wells were drilled in North Bahariya, and drilling of an additional well started in Ras Qattara during the quarter.
-`,
+    generalContext: MOL_GENERAL_CONTEXT,
+    contentPrompt: MOL_CONTENT_PROMPT,
     prompts: [
         {
             marker: '[1]',
@@ -972,7 +581,7 @@ REQUIREMENTS:
 - Style: short, factual operational updates.
 
 FORMAT:
-- Use "-" at the beginning of each bullet.
+
 - One bullet per line.
 
 OUTPUT:
@@ -989,7 +598,7 @@ REQUIREMENTS:
 - Style: factual, describing status or progress.
 
 FORMAT:
-- Start with "-".
+
 - One bullet only.
 
 OUTPUT:
@@ -1005,7 +614,7 @@ REQUIREMENTS:
 - BULLET LENGTH: between 5 and 10 words.
 
 FORMAT:
-- Start with "-".
+
 - One bullet only.
 
 OUTPUT:
@@ -1021,7 +630,7 @@ REQUIREMENTS:
 - BULLET LENGTH: up to 12 words.
 
 FORMAT:
-- Start with "-".
+
 - One bullet only.
 
 OUTPUT:
@@ -1037,7 +646,7 @@ REQUIREMENTS:
 - BULLET LENGTH: between 10 and 15 words.
 
 FORMAT:
-- Start with "-".
+
 - One bullet only.
 
 OUTPUT:
@@ -1055,7 +664,7 @@ REQUIREMENTS:
 - Style: factual, covering topics like facilities, wells, production trends, project status.
 
 FORMAT:
-- Use "-" at the beginning of each bullet.
+
 - One bullet per line.
 
 OUTPUT:
@@ -1071,7 +680,7 @@ REQUIREMENTS:
 - BULLET LENGTH: between 5 and 10 words.
 
 FORMAT:
-- Start with "-".
+
 - One bullet only.
 
 OUTPUT:
@@ -1088,7 +697,7 @@ REQUIREMENTS:
 - Style: factual, short status updates (e.g. measurements, studies, pilot phases).
 
 FORMAT:
-- Use "-" at the beginning of each bullet.
+
 - One bullet per line.
 
 OUTPUT:
@@ -1105,7 +714,7 @@ REQUIREMENTS:
 - Style: high-level but concrete (e.g. production trends, key project milestones, notable events).
 
 FORMAT:
-- Use "-" at the beginning of each bullet.
+
 - One bullet per line.
 
 OUTPUT:
@@ -1122,7 +731,7 @@ REQUIREMENTS:
 - Style: similar to Azerbaijan: high-level operational status, key events, production or project changes.
 
 FORMAT:
-- Use "-" at the beginning of each bullet.
+
 - One bullet per line.
 
 OUTPUT:
@@ -1182,6 +791,7 @@ export default function TemplatesPage() {
         defaultValues: {
             slideNumber: 1,
             generalContext: '',
+            contentPrompt: '',
             prompts: [{ marker: '', prompt: '' }],
         },
     });
@@ -1260,6 +870,7 @@ export default function TemplatesPage() {
                 formData.append('prompts', JSON.stringify(validPrompts));
                 formData.append('slideNumber', data.slideNumber.toString());
                 formData.append('generalContext', data.generalContext);
+                formData.append('contentPrompt', data.contentPrompt);
 
                 const response = await processTemplateAction(formData);
 
@@ -1432,12 +1043,27 @@ export default function TemplatesPage() {
                                 </FieldLabel>
                                 <Textarea
                                     id="generalContext"
-                                    placeholder="Provide general context that applies to all markers (e.g., company info, project details, tone of voice)..."
+                                    placeholder="Provide general context that applies to all markers (e.g., company info, project details, tone of voice, style guidelines)..."
                                     className="min-h-[120px] resize-y"
                                     {...form.register('generalContext')}
                                 />
                                 <p className="text-sm text-muted-foreground">
-                                    This context will be included in every AI generation request.
+                                    Instructions, style guidelines, and structural context for AI generation.
+                                </p>
+                            </Field>
+
+                            <Field>
+                                <FieldLabel htmlFor="contentPrompt">
+                                    Content Prompt
+                                </FieldLabel>
+                                <Textarea
+                                    id="contentPrompt"
+                                    placeholder="Provide the actual data and content to fill the textboxes from (e.g., quarterly results, KPIs, operational updates)..."
+                                    className="min-h-[120px] resize-y"
+                                    {...form.register('contentPrompt')}
+                                />
+                                <p className="text-sm text-muted-foreground">
+                                    The actual data and content that the AI should use to generate text.
                                 </p>
                             </Field>
 
