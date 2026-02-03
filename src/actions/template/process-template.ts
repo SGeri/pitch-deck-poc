@@ -94,6 +94,9 @@ ${generalContext ? `General Context:\n${generalContext}` : ''}`;
 
         // Check for AI errors
         const failedResults = aiResults.filter((r) => r.error);
+
+        console.log('failedResults', failedResults);
+
         if (failedResults.length > 0) {
             return {
                 success: false,
