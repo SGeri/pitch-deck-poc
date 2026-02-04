@@ -1,11 +1,12 @@
 'use server';
 
+import fs from 'fs';
+import path from 'path';
+
 import { generateMarkerContent } from '@/lib/ai';
 import { createEngineForJob } from '@/lib/pptx/engine';
 import { ensureTmpDir } from '@/lib/pptx/tmp-storage';
 import type { MarkerValueMap, TemplateInput } from '@/lib/pptx/types';
-import fs from 'fs';
-import path from 'path';
 
 export interface MarkerPromptPair {
     marker: string;
@@ -34,7 +35,8 @@ export async function processTemplateAction(
         // Extract file from FormData
         const file = formData.get('file') as File | null;
         const promptsJson = formData.get('prompts') as string | null;
-        const slideNumber = parseInt(formData.get('slideNumber') as string) || 1;
+        const slideNumber =
+            parseInt(formData.get('slideNumber') as string) || 1;
         const generalContext = (formData.get('generalContext') as string) || '';
 
         if (!file) {
@@ -48,12 +50,18 @@ export async function processTemplateAction(
         const prompts: MarkerPromptPair[] = JSON.parse(promptsJson);
 
         if (prompts.length === 0) {
-            return { success: false, error: 'At least one marker-prompt pair is required' };
+            return {
+                success: false,
+                error: 'At least one marker-prompt pair is required',
+            };
         }
 
         // Validate file type
         if (!file.name.endsWith('.pptx')) {
-            return { success: false, error: 'Invalid file type. Please upload a .pptx file' };
+            return {
+                success: false,
+                error: 'Invalid file type. Please upload a .pptx file',
+            };
         }
 
         // Save file to tmp directory
@@ -80,13 +88,20 @@ ${generalContext ? `General Context:\n${generalContext}` : ''}`;
         const aiResults = await Promise.all(
             prompts.map(async ({ marker, prompt }) => {
                 try {
-                    const value = await generateMarkerContent(marker, prompt, slideContext);
+                    const value = await generateMarkerContent(
+                        marker,
+                        prompt,
+                        slideContext,
+                    );
                     return { marker, value, error: null };
                 } catch (error) {
                     return {
                         marker,
                         value: null,
-                        error: error instanceof Error ? error.message : 'AI generation failed',
+                        error:
+                            error instanceof Error
+                                ? error.message
+                                : 'AI generation failed',
                     };
                 }
             }),
@@ -94,9 +109,6 @@ ${generalContext ? `General Context:\n${generalContext}` : ''}`;
 
         // Check for AI errors
         const failedResults = aiResults.filter((r) => r.error);
-
-        console.log('failedResults', failedResults);
-
         if (failedResults.length > 0) {
             return {
                 success: false,
@@ -157,7 +169,10 @@ ${generalContext ? `General Context:\n${generalContext}` : ''}`;
 
         return {
             success: false,
-            error: error instanceof Error ? error.message : 'Failed to process template',
+            error:
+                error instanceof Error
+                    ? error.message
+                    : 'Failed to process template',
         };
     }
 }

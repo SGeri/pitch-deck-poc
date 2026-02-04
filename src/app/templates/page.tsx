@@ -4,31 +4,57 @@ import { processTemplateAction } from '@/actions/template/process-template';
 import Sidebar from '@/components/Sidebar';
 import { cn } from '@/lib/utils';
 import {
+    Check,
     Download,
     Eye,
-    FileText,
+    Loader2,
     MessageSquare,
     Play,
     Send,
     Sparkles,
     Upload,
-    X,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useRef, useState, useTransition } from 'react';
 import { toast } from 'sonner';
+import {
+    MOL_CONTENT_PROMPT,
+    MOL_GENERAL_CONTEXT,
+    MOL_QUARTERLY_SLIDE_1_PRESET,
+    MOL_QUARTERLY_SLIDE_2_PRESET,
+    MOL_QUARTERLY_SLIDE_3_PRESET,
+    MOL_QUARTERLY_SLIDE_4_PRESET,
+} from './constants';
 
-// Default context for AI generation
-const DEFAULT_CONTEXT = `You are generating content for a MOL Group presentation template. 
+// Slide presets for iterative processing
+const SLIDE_PRESETS = [
+    MOL_QUARTERLY_SLIDE_1_PRESET,
+    MOL_QUARTERLY_SLIDE_2_PRESET,
+    MOL_QUARTERLY_SLIDE_3_PRESET,
+    MOL_QUARTERLY_SLIDE_4_PRESET,
+];
 
-STYLE AND TONE:
-- Professional, executive-level communication
-- Concise and factual
-- Use present or simple past tense as appropriate
+// Helper function to convert base64 back to File
+const base64ToFile = (base64: string, fileName: string): File => {
+    const byteCharacters = atob(base64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], {
+        type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    });
+    return new File([blob], fileName, { type: blob.type });
+};
 
-FORMATTING:
-- Use bullet points starting with "-" where appropriate
-- Keep content clear and well-structured`;
+// Processing status type
+interface ProcessingStatus {
+    isProcessing: boolean;
+    currentSlide: number;
+    totalSlides: number;
+    completedSlides: number[];
+}
 
 export default function TemplatesPage() {
     const router = useRouter();
@@ -40,12 +66,14 @@ export default function TemplatesPage() {
     const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
     const thumbnailUrlRef = useRef<string | null>(null);
 
-    // Data file state
-    const [dataFile, setDataFile] = useState<File | null>(null);
-    const [dataDragOver, setDataDragOver] = useState(false);
-
     // Context state
-    const [context, setContext] = useState(DEFAULT_CONTEXT);
+    const [context, setContext] = useState(MOL_GENERAL_CONTEXT);
+
+    // Content prompt state (replaces data file upload)
+    const [contentPrompt, setContentPrompt] = useState(MOL_CONTENT_PROMPT);
+
+    // Processing status for multi-slide generation
+    const [processingStatus, setProcessingStatus] = useState<ProcessingStatus | null>(null);
 
     // Result state
     const [result, setResult] = useState<{ data: string; fileName: string } | null>(null);
@@ -144,36 +172,7 @@ export default function TemplatesPage() {
         }
     }, [extractThumbnail]);
 
-    // Data file handlers
-    const handleDataDragOver = useCallback((e: React.DragEvent) => {
-        e.preventDefault();
-        setDataDragOver(true);
-    }, []);
-
-    const handleDataDragLeave = useCallback((e: React.DragEvent) => {
-        e.preventDefault();
-        setDataDragOver(false);
-    }, []);
-
-    const handleDataDrop = useCallback((e: React.DragEvent) => {
-        e.preventDefault();
-        setDataDragOver(false);
-        const droppedFile = e.dataTransfer.files[0];
-        if (droppedFile) {
-            setDataFile(droppedFile);
-            toast.success('Data file uploaded');
-        }
-    }, []);
-
-    const handleDataSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const selectedFile = e.target.files?.[0];
-        if (selectedFile) {
-            setDataFile(selectedFile);
-            toast.success('Data file uploaded');
-        }
-    }, []);
-
-    // Generate handler
+    // Generate handler - iterates through all 4 slides
     const handleGenerate = () => {
         if (!templateFile) {
             toast.error('Please upload a template file first');
@@ -182,33 +181,78 @@ export default function TemplatesPage() {
 
         setError(null);
         setResult(null);
+        setProcessingStatus({
+            isProcessing: true,
+            currentSlide: 1,
+            totalSlides: SLIDE_PRESETS.length,
+            completedSlides: [],
+        });
 
         startTransition(async () => {
             try {
-                const formData = new FormData();
-                formData.append('file', templateFile);
-                formData.append('generalContext', context);
-                // For now, use a simple marker-prompt structure
-                formData.append(
-                    'prompts',
-                    JSON.stringify([{ marker: '[1]', prompt: 'Generate content based on the context provided.' }])
-                );
-                formData.append('slideNumber', '1');
+                // Combine general context with content prompt
+                const fullContext = `${context}\n\n--- CONTENT DATA ---\n\n${contentPrompt}`;
 
-                const response = await processTemplateAction(formData);
+                let currentFile: File = templateFile;
 
-                if (!response.success || !response.data) {
-                    throw new Error(response.error || 'Processing failed');
+                // Iterate through all slides
+                for (let i = 0; i < SLIDE_PRESETS.length; i++) {
+                    const slide = SLIDE_PRESETS[i];
+                    const slideNumber = slide.slideNumber;
+
+                    // Update processing status
+                    setProcessingStatus((prev) => ({
+                        isProcessing: true,
+                        currentSlide: slideNumber,
+                        totalSlides: SLIDE_PRESETS.length,
+                        completedSlides: prev?.completedSlides || [],
+                    }));
+
+                    console.log(`Processing slide ${slideNumber}...`);
+
+                    const formData = new FormData();
+                    formData.append('file', currentFile);
+                    formData.append('generalContext', fullContext);
+                    formData.append('prompts', JSON.stringify(slide.prompts));
+                    formData.append('slideNumber', slideNumber.toString());
+
+                    const response = await processTemplateAction(formData);
+
+                    if (!response.success || !response.data) {
+                        throw new Error(response.error || `Processing slide ${slideNumber} failed`);
+                    }
+
+                    console.log(`Slide ${slideNumber} completed successfully`);
+
+                    // Update completed slides
+                    setProcessingStatus((prev) => ({
+                        isProcessing: true,
+                        currentSlide: slideNumber,
+                        totalSlides: SLIDE_PRESETS.length,
+                        completedSlides: [...(prev?.completedSlides || []), slideNumber],
+                    }));
+
+                    // Convert result to File for next iteration (if not last slide)
+                    if (i < SLIDE_PRESETS.length - 1) {
+                        currentFile = base64ToFile(
+                            response.data,
+                            response.fileName || `slide-${slideNumber}-filled.pptx`
+                        );
+                    } else {
+                        // Last slide - set final result
+                        setResult({
+                            data: response.data,
+                            fileName: response.fileName || 'filled-template.pptx',
+                        });
+                    }
                 }
 
-                setResult({
-                    data: response.data,
-                    fileName: response.fileName || 'filled-template.pptx',
-                });
-                toast.success('Presentation generated successfully!');
+                setProcessingStatus(null);
+                toast.success('All slides generated successfully!');
             } catch (err) {
                 const message = err instanceof Error ? err.message : 'An error occurred';
                 setError(message);
+                setProcessingStatus(null);
                 toast.error(message);
             }
         });
@@ -391,68 +435,79 @@ export default function TemplatesPage() {
                             </p>
                         </section>
 
-                        {/* 3. Data Upload Section */}
+                        {/* 3. Content Data Section */}
                         <section>
                             <h2 className="mb-3 text-sm font-semibold text-[var(--text-primary)]">
                                 Update Data
                             </h2>
-                            {!dataFile ? (
-                                <div
-                                    className={cn(
-                                        'relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors',
-                                        dataDragOver
-                                            ? 'border-[var(--mol-green)] bg-green-50'
-                                            : 'border-[var(--slate-300)] hover:border-[var(--slate-400)]'
-                                    )}
-                                    onDragOver={handleDataDragOver}
-                                    onDragLeave={handleDataDragLeave}
-                                    onDrop={handleDataDrop}
-                                >
-                                    <input
-                                        type="file"
-                                        accept=".pdf,.txt,.doc,.docx,.csv,.xlsx"
-                                        onChange={handleDataSelect}
-                                        className="absolute inset-0 cursor-pointer opacity-0"
-                                    />
-                                    <div className="mb-3 flex size-12 items-center justify-center rounded-lg bg-[var(--slate-100)]">
-                                        <FileText className="size-6 text-[var(--slate-500)]" />
-                                    </div>
-                                    <p className="text-sm font-medium text-[var(--text-primary)]">
-                                        Upload Data Source
-                                    </p>
-                                    <p className="text-xs text-[var(--text-tertiary)]">
-                                        PDF, TXT, Word, CSV, Excel
-                                    </p>
-                                </div>
-                            ) : (
-                                <div className="flex items-center justify-between rounded-lg border border-[var(--border-default)] bg-[var(--slate-50)] p-3">
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex size-10 items-center justify-center rounded-lg bg-[var(--mol-green)]/10">
-                                            <FileText className="size-5 text-[var(--mol-green)]" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium text-[var(--text-primary)]">
-                                                {dataFile.name}
-                                            </p>
-                                            <p className="text-xs text-[var(--text-tertiary)]">
-                                                {(dataFile.size / 1024).toFixed(1)} KB
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <button
-                                        onClick={() => setDataFile(null)}
-                                        className="rounded-md p-1.5 text-[var(--text-tertiary)] transition-colors hover:bg-[var(--slate-200)] hover:text-[var(--text-primary)]"
-                                    >
-                                        <X className="size-4" />
-                                    </button>
-                                </div>
-                            )}
+                            <textarea
+                                value={contentPrompt}
+                                onChange={(e) => setContentPrompt(e.target.value)}
+                                placeholder="Provide the quarterly data and content updates..."
+                                className="h-64 w-full resize-none rounded-lg border border-[var(--border-default)] bg-white p-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:border-[var(--mol-red)] focus:outline-none focus:ring-2 focus:ring-[var(--mol-red)]/20"
+                            />
+                            <p className="mt-1.5 text-xs text-[var(--text-tertiary)]">
+                                Enter the quarterly financial data and operational updates for the presentation.
+                            </p>
                         </section>
 
                         {/* Error Display */}
                         {error && (
                             <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
                                 {error}
+                            </div>
+                        )}
+
+                        {/* Processing Progress Indicator */}
+                        {processingStatus && (
+                            <div className="rounded-lg border border-[var(--border-default)] bg-[var(--slate-50)] p-4">
+                                <div className="mb-3 flex items-center justify-between">
+                                    <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+                                        Generating Presentation
+                                    </h3>
+                                    <span className="text-xs text-[var(--text-tertiary)]">
+                                        Slide {processingStatus.currentSlide} of {processingStatus.totalSlides}
+                                    </span>
+                                </div>
+                                
+                                {/* Progress Bar */}
+                                <div className="mb-4 h-2 w-full overflow-hidden rounded-full bg-[var(--slate-200)]">
+                                    <div
+                                        className="h-full bg-[var(--mol-red)] transition-all duration-300"
+                                        style={{
+                                            width: `${(processingStatus.completedSlides.length / processingStatus.totalSlides) * 100}%`,
+                                        }}
+                                    />
+                                </div>
+
+                                {/* Slide Status List */}
+                                <div className="grid grid-cols-4 gap-2">
+                                    {SLIDE_PRESETS.map((slide) => {
+                                        const isCompleted = processingStatus.completedSlides.includes(slide.slideNumber);
+                                        const isCurrent = processingStatus.currentSlide === slide.slideNumber && !isCompleted;
+                                        
+                                        return (
+                                            <div
+                                                key={slide.slideNumber}
+                                                className={cn(
+                                                    'flex items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium',
+                                                    isCompleted && 'bg-green-100 text-green-700',
+                                                    isCurrent && 'bg-[var(--mol-red)]/10 text-[var(--mol-red)]',
+                                                    !isCompleted && !isCurrent && 'bg-[var(--slate-100)] text-[var(--text-tertiary)]'
+                                                )}
+                                            >
+                                                {isCompleted ? (
+                                                    <Check className="size-3.5" />
+                                                ) : isCurrent ? (
+                                                    <Loader2 className="size-3.5 animate-spin" />
+                                                ) : (
+                                                    <div className="size-3.5" />
+                                                )}
+                                                Slide {slide.slideNumber}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             </div>
                         )}
 
@@ -464,13 +519,15 @@ export default function TemplatesPage() {
                         >
                             {isPending ? (
                                 <>
-                                    <Sparkles className="size-4 animate-pulse" />
-                                    Generating...
+                                    <Loader2 className="size-4 animate-spin" />
+                                    {processingStatus
+                                        ? `Processing Slide ${processingStatus.currentSlide}...`
+                                        : 'Generating...'}
                                 </>
                             ) : (
                                 <>
                                     <Play className="size-4" />
-                                    Generate Presentation
+                                    Generate All 4 Slides
                                 </>
                             )}
                         </button>
