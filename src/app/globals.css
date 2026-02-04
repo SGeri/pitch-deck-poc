@@ -48,6 +48,48 @@
 
 :root {
     --radius: 0.625rem;
+    
+    /* MOL Brand Colors */
+    --mol-red: #C7423B;
+    --mol-red-hover: #B33A34;
+    --mol-green: #B3C866;
+    --mol-tan: #BC8A52;
+    --bg-sidebar: #1a1a1a;
+    
+    /* Slate Scale */
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-300: #cbd5e1;
+    --slate-400: #94a3b8;
+    --slate-500: #64748b;
+    --slate-600: #475569;
+    --slate-700: #334155;
+    --slate-800: #1e293b;
+    --slate-900: #0f172a;
+    
+    /* Text Colors */
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-tertiary: #94a3b8;
+    
+    /* Border Colors */
+    --border-default: #e2e8f0;
+    --border-subtle: #f1f5f9;
+    
+    /* Category Badge Colors */
+    --badge-financial-bg: #fef2f2;
+    --badge-financial-text: #dc2626;
+    --badge-esg-bg: #f0fdf4;
+    --badge-esg-text: #16a34a;
+    --badge-investor-bg: #eff6ff;
+    --badge-investor-text: #2563eb;
+    --badge-quarterly-bg: #fff7ed;
+    --badge-quarterly-text: #ea580c;
+    --badge-strategy-bg: #f8fafc;
+    --badge-strategy-text: #475569;
+    --badge-operations-bg: #f8fafc;
+    --badge-operations-text: #475569;
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
@@ -121,5 +163,79 @@
     }
     body {
         @apply bg-background text-foreground;
+    }
+}
+
+@layer components {
+    /* Card Components */
+    .card {
+        background: white;
+        border: 1px solid var(--border-default);
+        border-radius: 12px;
+        transition: all 0.2s ease;
+    }
+    
+    .card-interactive {
+        cursor: pointer;
+    }
+    
+    .card-interactive:hover {
+        border-color: var(--slate-300);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    /* Badge Components */
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 8px;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.025em;
+        text-transform: uppercase;
+        border-radius: 4px;
+    }
+    
+    .badge-financial {
+        background: var(--badge-financial-bg);
+        color: var(--badge-financial-text);
+    }
+    
+    .badge-esg {
+        background: var(--badge-esg-bg);
+        color: var(--badge-esg-text);
+    }
+    
+    .badge-investor {
+        background: var(--badge-investor-bg);
+        color: var(--badge-investor-text);
+    }
+    
+    .badge-quarterly {
+        background: var(--badge-quarterly-bg);
+        color: var(--badge-quarterly-text);
+    }
+    
+    .badge-strategy {
+        background: var(--badge-strategy-bg);
+        color: var(--badge-strategy-text);
+    }
+    
+    .badge-operations {
+        background: var(--badge-operations-bg);
+        color: var(--badge-operations-text);
+    }
+    
+    /* Typography */
+    .text-heading {
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+    
+    .text-caption {
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--text-secondary);
     }
 }
