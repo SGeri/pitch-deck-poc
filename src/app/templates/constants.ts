@@ -458,7 +458,8 @@ REQUIREMENTS:
   - Circular Economy Services EBITDA,
   - Any notable corporate/other financial effects.
 - NUMBER OF BULLETS: 5 to 7 bullets.
-- EACH BULLET: between 15 and 25 words.
+- EACH BULLET: MAXIMUM 15 words. NEVER exceed 15 words per bullet. MAXIMUM 100 characters per bullet including spaces.
+- If a bullet is too long, shorten it aggressively. Brevity is more important than detail.
 - Style: factual, segment-focused, linking performance to drivers (prices, volumes, margins, FX, etc.).
 - Do NOT use ALL CAPS; use normal sentence case (capitalise first letter, proper nouns).
 
@@ -476,7 +477,8 @@ OUTPUT:
 REQUIREMENTS:
 - Content: key operational and strategic developments in the period, across MOL Group (refining, retail, upstream, projects, regulation, etc.).
 - NUMBER OF BULLETS: exactly 4 bullets.
-- EACH BULLET: between 10 and 20 words.
+- EACH BULLET: MAXIMUM 12 words. NEVER exceed 12 words per bullet. MAXIMUM 80 characters per bullet including spaces.
+- If a bullet is too long, shorten it aggressively. Brevity is more important than detail.
 - Style: concise, factual, highlight-type items (e.g. major outages, new projects, regulatory changes, strategic milestones).
 - Do NOT use ALL CAPS; use normal sentence case.
 
@@ -547,7 +549,8 @@ export const MOL_QUARTERLY_SLIDE_4_PRESET: FormValues = {
 REQUIREMENTS:
 - Content: key exploration updates in Hungary for the period (e.g. bid rounds, concessions, drilling, evaluations).
 - NUMBER OF BULLETS: 2 or 3 bullets.
-- EACH BULLET: between 5 and 15 words.
+- EACH BULLET: MAXIMUM 10 words. NEVER exceed 10 words. MAXIMUM 70 characters per bullet including spaces.
+- If a bullet is too long, shorten it aggressively. Brevity is more important than detail.
 - Style: short, factual operational updates.
 
 FORMAT:
@@ -564,7 +567,8 @@ OUTPUT:
 REQUIREMENTS:
 - Content: a single bullet capturing the main field development activity in Hungary (e.g. permitting, tendering, facilities, tie-ins).
 - NUMBER OF BULLETS: exactly 1 bullet.
-- BULLET LENGTH: between 10 and 15 words.
+- BULLET LENGTH: MAXIMUM 12 words. NEVER exceed 12 words. MAXIMUM 80 characters including spaces.
+- If too long, shorten aggressively. Brevity is more important than detail.
 - Style: factual, describing status or progress.
 
 FORMAT:
@@ -581,7 +585,8 @@ OUTPUT:
 REQUIREMENTS:
 - Content: a single bullet describing production optimisation measures or results (e.g. workovers completed, efficiency gains).
 - NUMBER OF BULLETS: exactly 1 bullet.
-- BULLET LENGTH: between 5 and 10 words.
+- BULLET LENGTH: MAXIMUM 8 words. NEVER exceed 8 words. MAXIMUM 60 characters including spaces.
+- If too long, shorten aggressively. Brevity is more important than detail.
 
 FORMAT:
 
@@ -597,7 +602,8 @@ OUTPUT:
 REQUIREMENTS:
 - Content: a single bullet with another relevant upstream-related update, often geothermal-related (e.g. seismic measurements, pilot projects).
 - NUMBER OF BULLETS: exactly 1 bullet.
-- BULLET LENGTH: up to 12 words.
+- BULLET LENGTH: MAXIMUM 10 words. NEVER exceed 10 words. MAXIMUM 70 characters including spaces.
+- If too long, shorten aggressively. Brevity is more important than detail.
 
 FORMAT:
 
@@ -613,7 +619,8 @@ OUTPUT:
 REQUIREMENTS:
 - Content: a single bullet about exploration activity in Croatia (e.g. licensing, drilling, seismic).
 - NUMBER OF BULLETS: exactly 1 bullet.
-- BULLET LENGTH: between 10 and 15 words.
+- BULLET LENGTH: MAXIMUM 12 words. NEVER exceed 12 words. MAXIMUM 80 characters including spaces.
+- If too long, shorten aggressively. Brevity is more important than detail.
 
 FORMAT:
 
@@ -629,8 +636,9 @@ OUTPUT:
 REQUIREMENTS:
 - Content: multiple bullets summarising key field development and production updates in Croatia.
 - NUMBER OF BULLETS: exactly 3 bullets.
-- EACH BULLET: between 10 and 15 words.
-- MAX WORDS TOTAL: between 25 and 35 words.
+- EACH BULLET: MAXIMUM 10 words. NEVER exceed 10 words per bullet. MAXIMUM 70 characters per bullet including spaces.
+- MAX WORDS TOTAL: 30 words across all 3 bullets.
+- If a bullet is too long, shorten it aggressively. Brevity is more important than detail.
 - Style: factual, covering topics like facilities, wells, production trends, project status.
 
 FORMAT:
@@ -647,7 +655,8 @@ OUTPUT:
 REQUIREMENTS:
 - Content: a single bullet about production optimisation actions or results in Croatia.
 - NUMBER OF BULLETS: exactly 1 bullet.
-- BULLET LENGTH: between 5 and 10 words.
+- BULLET LENGTH: MAXIMUM 8 words. NEVER exceed 8 words. MAXIMUM 60 characters including spaces.
+- If too long, shorten aggressively. Brevity is more important than detail.
 
 FORMAT:
 
@@ -663,7 +672,8 @@ OUTPUT:
 REQUIREMENTS:
 - Content: geothermal-related operational updates in Croatia.
 - NUMBER OF BULLETS: exactly 2 bullets.
-- EACH BULLET: between 5 and 10 words.
+- EACH BULLET: MAXIMUM 8 words. NEVER exceed 8 words per bullet. MAXIMUM 60 characters per bullet including spaces.
+- If a bullet is too long, shorten it aggressively. Brevity is more important than detail.
 - Style: factual, short status updates (e.g. measurements, studies, pilot phases).
 
 FORMAT:
@@ -680,7 +690,8 @@ OUTPUT:
 REQUIREMENTS:
 - Content: upstream operational updates in Azerbaijan for the period.
 - NUMBER OF BULLETS: 2 or 3 bullets.
-- EACH BULLET: between 10 and 15 words.
+- EACH BULLET: MAXIMUM 12 words. NEVER exceed 12 words per bullet. MAXIMUM 80 characters per bullet including spaces.
+- If a bullet is too long, shorten it aggressively. Brevity is more important than detail.
 - Style: high-level but concrete (e.g. production trends, key project milestones, notable events).
 
 FORMAT:
@@ -697,7 +708,8 @@ OUTPUT:
 REQUIREMENTS:
 - Content: upstream operational updates in Egypt for the period.
 - NUMBER OF BULLETS: 3 or 4 bullets.
-- EACH BULLET: between 10 and 15 words.
+- EACH BULLET: MAXIMUM 12 words. NEVER exceed 12 words per bullet. MAXIMUM 80 characters per bullet including spaces.
+- If a bullet is too long, shorten it aggressively. Brevity is more important than detail.
 - Style: similar to Azerbaijan: high-level operational status, key events, production or project changes.
 
 FORMAT:
